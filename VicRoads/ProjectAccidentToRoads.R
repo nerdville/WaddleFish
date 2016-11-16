@@ -9,7 +9,7 @@ library(xgboost)
 acc <- data.table(fread('data/accidents_train.csv', stringsAsFactors = T))
 roads <- data.table(fread('data/roads.csv', stringsAsFactors = T))
 
-
+acc<-acc[1:2000]
 
 #-------------------------------------------------------------------------------
 #Make road features
@@ -44,7 +44,7 @@ roadOHE<-data.table(as.data.frame(roadOHE))
 roadFeatures<-names(roadOHE)
 roadFeatures<-setdiff(roadFeatures, c("ROAD_ID"))
 
-NewFeatures<-data.table(roadOHE$ROAD_ID)
+NewFeatures<-data.table(ID=roadOHE$ROAD_ID)
 
 #-------------------------------------------------------------------------------
 

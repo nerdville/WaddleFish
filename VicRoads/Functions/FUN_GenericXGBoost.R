@@ -45,20 +45,17 @@ factorXGB_fit<-function(af, NewFeatures){
                      , print.every.n =10
                      , watchlist= watchlist
    )
-   # Get the feature real names
-   names <- dimnames(dtrain)[[2]]
 
    # Compute feature importance matrix
-   importance_matrix <- xgb.importance(names, model = bst)
+   importance_matrix <- xgb.importance(roadFeatures, model = bst)
 
-   roadFeatures<-importance_matrix$Feature[1:30]
+   roadFeatures2<-importance_matrix$Feature[1:min(30,nrow(importance_matrix))]
 
 
+   dtrain <- xgb.DMatrix(data.matrix(accRoad[,roadFeatures2,with=F])
+                         ,label = data.matrix(accRoad$Response))
 
-   dtrain <- xgb.DMatrix(data.matrix(accRoad[,roadFeatures,with=F])
-                        ,label = data.matrix(accRoad$Response))
-
-   droadOHE <- xgb.DMatrix(data.matrix(roadOHE[,roadFeatures,with=F]))
+   droadOHE <- xgb.DMatrix(data.matrix(roadOHE[,roadFeatures2,with=F]))
 
    param <- list(    eta = 0.01
                      ,   max_depth=5
@@ -82,7 +79,7 @@ factorXGB_fit<-function(af, NewFeatures){
                   , nfold = 3)
 
 
-   nround2<-bst$best_iteration
+   nround2<-which.min(bst$test.mlogloss.mean)
 
 
    bst = xgb.train(  params =param
@@ -141,19 +138,18 @@ contXGB_fit<-function(af, NewFeatures){
                      , print.every.n =10
                      , watchlist= watchlist
    )
-   # Get the feature real names
-   names <- dimnames(dtrain)[[2]]
+
 
    # Compute feature importance matrix
-   importance_matrix <- xgb.importance(names, model = bst)
+   importance_matrix <- xgb.importance(roadFeatures, model = bst)
 
-   roadFeatures<-importance_matrix$Feature[1:min(30,nrow(importance_matrix))]
+   roadFeatures2<-importance_matrix$Feature[1:min(30,nrow(importance_matrix))]
 
 
-   dtrain <- xgb.DMatrix(data.matrix(accRoad[,roadFeatures,with=F])
+   dtrain <- xgb.DMatrix(data.matrix(accRoad[,roadFeatures2,with=F])
                          ,label = data.matrix(accRoad$Response))
 
-   droadOHE <- xgb.DMatrix(data.matrix(roadOHE[,roadFeatures,with=F]))
+   droadOHE <- xgb.DMatrix(data.matrix(roadOHE[,roadFeatures2,with=F]))
 
    param <- list(    eta = 0.01
                      ,   max_depth=5
@@ -175,10 +171,7 @@ contXGB_fit<-function(af, NewFeatures){
                   , nfold = 3)
 
 
-   nround2<-bst$best_iteration
-
-   dtrain <- xgb.DMatrix(         data.matrix(accRoad[,roadFeatures,with=F])
-                                  ,label = data.matrix(accRoad$Response))
+   nround2<-which.min(bst$test.rmse.mean)
 
    bst = xgb.train(  params =param
                      , data = dtrain
